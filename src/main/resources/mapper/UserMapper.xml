@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tnar.mytest.springboottest.mapper.UserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.tnar.mytest.springboottest.model.User">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="age" property="age" />
+        <result column="email" property="email" />
+        <result column="pwd" property="pwd" />
+        <result column="role" property="role" />
+    </resultMap>
+
+    <resultMap id="connectResult" type="com.tnar.mytest.springboottest.model.User">
+        <id property="id" column="uid"></id>
+        <result property="name" column="uname"/>
+        <result property="age" column="uage"/>
+        <result property="email" column="uemail"/>
+        <result property="pwd" column="upwd"/>
+        <result property="role" column="urole"/>
+        <association property="identity" javaType="com.tnar.mytest.springboottest.model.Identity">
+            <id property="id" column="iid"/>
+            <result property="identity" column="iidentity" />
+        </association>
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, age, email, pwd, role
+    </sql>
+
+    <sql id="Connect">
+        u.id uid,
+        u.name uname,
+        u.age uage,
+        u.email uemail,
+        u.pwd upwd,
+        u.role urole,
+        i.id iid,
+        i.identity iidentity
+    </sql>
+
+    <select id="selectConnectById" resultMap="connectResult">
+        SELECT
+        <include refid="Connect"></include>
+         FROM user u, identity i
+         WHERE u.iid = i.id and u.id = #{id}
+    </select>
+
+    <select id="selectConnect" resultMap="connectResult">
+        SELECT
+        <include refid="Connect"></include>
+        FROM user u, identity i
+        WHERE u.iid = i.id
+    </select>
+
+    <select id="selectDynamic" parameterType="com.tnar.mytest.springboottest.model.User" resultMap="connectResult">
+        SELECT
+        <include refid="Connect"></include>
+        FROM user u, identity i
+        WHERE u.iid = i.id
+        <trim prefix="and" prefixOverrides="and">
+            <if test="id !=null and id != ''">
+                AND u.id =#{id}
+            </if>
+            <if test="name != null and name !=''">
+                AND u.name =#{name}
+            </if>
+            <if test="age !=null and age!=''">
+                AND u.age =#{age}
+            </if>
+            <if test="email !=null and email !=''">
+                AND u.email =#{email}
+            </if>
+            <if test="pwd !=null and pwd !=''">
+                AND u.pwd = #{pwd}
+            </if>
+            <if test="role !=null and role !=''">
+                AND u.role =#{role}
+            </if>
+            <if test="identity !=null">
+                <if test="identity.id !=null and identity.id !=''">
+                    AND i.id = #{identity.id}
+                </if>
+                <if test="identity.identity !=null and identity.identity !=''">
+                    AND i.identity =#{identity.identity}
+                </if>
+            </if>
+        </trim>
+    </select>
+</mapper>
